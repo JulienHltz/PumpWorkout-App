@@ -27,9 +27,13 @@ class Entrainement
     #[ORM\ManyToMany(targetEntity: Exercice::class, inversedBy: 'entrainements')]
     private Collection $exercices;
 
+    #[ORM\ManyToMany(targetEntity: Carnet::class, mappedBy: 'entrainements')]
+    private Collection $carnets;
+
     public function __construct()
     {
         $this->exercices = new ArrayCollection();
+        $this->carnets = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,6 +97,33 @@ class Entrainement
     public function removeExercice(Exercice $exercice): self
     {
         $this->exercices->removeElement($exercice);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Carnet>
+     */
+    public function getCarnets(): Collection
+    {
+        return $this->carnets;
+    }
+
+    public function addCarnet(Carnet $carnet): self
+    {
+        if (!$this->carnets->contains($carnet)) {
+            $this->carnets->add($carnet);
+            $carnet->addEntrainement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCarnet(Carnet $carnet): self
+    {
+        if ($this->carnets->removeElement($carnet)) {
+            $carnet->removeEntrainement($this);
+        }
 
         return $this;
     }

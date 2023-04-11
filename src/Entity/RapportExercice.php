@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\ExerciceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Repository\RapportExerciceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ExerciceRepository::class)]
-class Exercice
+#[ORM\Entity(repositoryClass: RapportExerciceRepository::class)]
+class RapportExercice
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,7 +21,7 @@ class Exercice
     private ?float $poids = null;
 
     #[ORM\Column]
-    private ?int $nbRep = null;
+    private ?int $nbReps = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $tmpRepos = null;
@@ -31,20 +29,15 @@ class Exercice
     #[ORM\Column(length: 255)]
     private ?string $vitesseExecution = null;
 
-    #[ORM\ManyToMany(targetEntity: Entrainement::class, mappedBy: 'exercices')]
-    private Collection $entrainements;
+    #[ORM\Column]
+    private ?int $autoNotation = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $tags = null;
+    #[ORM\Column(nullable: true)]
+    private ?float $tonnageExercice = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne(inversedBy: 'rapportExercices')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?RapportExercice $rapport = null;
-
-    public function __construct()
-    {
-        $this->entrainements = new ArrayCollection();
-    }
+    private ?RapportEntrainement $rapportFinal = null;
 
     public function getId(): ?int
     {
@@ -75,14 +68,14 @@ class Exercice
         return $this;
     }
 
-    public function getNbRep(): ?int
+    public function getNbReps(): ?int
     {
-        return $this->nbRep;
+        return $this->nbReps;
     }
 
-    public function setNbRep(int $nbRep): self
+    public function setNbReps(int $nbReps): self
     {
-        $this->nbRep = $nbRep;
+        $this->nbReps = $nbReps;
 
         return $this;
     }
@@ -111,53 +104,38 @@ class Exercice
         return $this;
     }
 
-    /**
-     * @return Collection<int, Entrainement>
-     */
-    public function getEntrainements(): Collection
+    public function getAutoNotation(): ?int
     {
-        return $this->entrainements;
+        return $this->autoNotation;
     }
 
-    public function addEntrainement(Entrainement $entrainement): self
+    public function setAutoNotation(int $autoNotation): self
     {
-        if (!$this->entrainements->contains($entrainement)) {
-            $this->entrainements->add($entrainement);
-            $entrainement->addExercice($this);
-        }
+        $this->autoNotation = $autoNotation;
 
         return $this;
     }
 
-    public function removeEntrainement(Entrainement $entrainement): self
+    public function getTonnageExercice(): ?float
     {
-        if ($this->entrainements->removeElement($entrainement)) {
-            $entrainement->removeExercice($this);
-        }
+        return $this->tonnageExercice;
+    }
+
+    public function setTonnageExercice(?float $tonnageExercice): self
+    {
+        $this->tonnageExercice = $tonnageExercice;
 
         return $this;
     }
 
-    public function getTags(): ?string
+    public function getRapportFinal(): ?RapportEntrainement
     {
-        return $this->tags;
+        return $this->rapportFinal;
     }
 
-    public function setTags(string $tags): self
+    public function setRapportFinal(?RapportEntrainement $rapportFinal): self
     {
-        $this->tags = $tags;
-
-        return $this;
-    }
-
-    public function getRapport(): ?RapportExercice
-    {
-        return $this->rapport;
-    }
-
-    public function setRapport(RapportExercice $rapport): self
-    {
-        $this->rapport = $rapport;
+        $this->rapportFinal = $rapportFinal;
 
         return $this;
     }
